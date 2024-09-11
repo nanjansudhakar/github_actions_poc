@@ -1,0 +1,17 @@
+name: gh First Workflow
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run a script
+        run: |
+          echo "Hello, GitHUb Actions !"
+          echo "This is a GitHub Action workflow runs on self hosted a@ windows local ."
