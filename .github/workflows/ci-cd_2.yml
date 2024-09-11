@@ -1,0 +1,54 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK (for Java projects)
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11' # Use the appropriate version for your project
+
+      - name: Build project
+        run: ./gradlew build # Adjust this command based on your build tool (e.g., Maven, Gradle, etc.)
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarcloud-github-action@v2
+        with:
+          organization: 'your-org' # Replace with your SonarQube organization
+          token: ${{ secrets.SONARQUBE_TOKEN }} # Store your SonarQube token in GitHub Secrets
+          projectKey: 'your-project-key' # Replace with your SonarQube project key
+
+      - name: Checkmarx Scan
+        run: |
+          # Assuming Checkmarx CLI is installed and configured
+          cx scan --project-name "your-project" --scan-type "SAST" --token "${{ secrets.CHECKMARX_TOKEN }}" --server "${{ secrets.CHECKMARX_SERVER_URL }}"
+        env:
+          CHECKMARX_TOKEN: ${{ secrets.CHECKMARX_TOKEN }}
+          CHECKMARX_SERVER_URL: ${{ secrets.CHECKMARX_SERVER_URL }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: path/to/your/build/output # Adjust this path based on your build output location
+
+      - name: Upload to Artifactory
+        uses: jfrog/setup-jfrog-cli-action@v2
+        with:
+          version: 'latest'
+        env:
+          JFROG_CLI_ACCESS_TOKEN: ${{ secrets.JFROG_ACCESS_TOKEN }} # Store your Artifactory access token in GitHub Secrets
+        run: |
+          jfrog rt u "path/to/your/build/output/*" "your-repo-name/path/in/repo/"
