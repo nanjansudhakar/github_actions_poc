@@ -1,4 +1,4 @@
-name: gh First Workflow
+name: gh_self_host_WF
 
 on:
   push:
