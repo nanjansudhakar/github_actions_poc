@@ -34,6 +34,7 @@ jobs:
       # Step 5: Checkmarx Security Scanning using shared action
       - name: Checkmarx Security Scan
         uses: nanjansudhakar/github_actions_library/.github/actions/checkmarx_scan@main
+        
 
       # Step 6: Publish to Artifactory using shared action
       - name: Publish to Artifactory
